@@ -1,10 +1,57 @@
 {% extends 'space/base.html' %}
 {% load staticfiles %}
 {% block content %}
-    <h1>Hello World</h1>
-    
-    <div id="map"></div>
-    <script src="{% static 'js/gmaps.js' %}"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
-         async defer></script>
+<h1>Hello World</h1>
+
+<div id="map"></div>
+<script>
+        var jsPins = [];
+        var map;
+
+        function initMap() {
+            var mapDiv = document.getElementById('map');
+            map = new google.maps.Map(mapDiv, {
+                center: {lat: 44.540, lng: -78.546},
+                zoom: 8
+            });
+        }
+
+    filterMarkers = function (symptom) {
+        for (i = 0; i < jsPins.length; i++) {
+        var currentPin = jsPins[i];
+        // If is same category or category not picked
+        if (currentPin.title == symptom) {
+            currentPin.setVisible(true);
+        }
+        // Categories don't match
+        else {
+            currentPin.setVisible(false);
+        }
+    }
+
+function addPin(symptom) {
+            var pinLatLng = {lat: {{pin.locLat}}, lng: {{pin.locLong}} };
+            var pin = new google.maps.Marker({
+                position: pinLatLng,
+                map: map,
+                title: symptom
+            jsPins.push(pin)
+    });
+
+
+</script>
+{% for pin in pins %}
+<script>
+    addPin('{{pin.symptomName}}');
+
+</script>
+{% endfor %}
+<script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
+        async defer></script>
+<select id="Symptom" onchange="filterMarkers(this.value);">
+    <option value="">Please select category</option>
+    <option value="cough">cough</option>
+    <option value="cold">cold</option>
+    <option value="sneeze">sneeze</option>
+</select>
 {% endblock %}
