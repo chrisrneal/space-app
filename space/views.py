@@ -33,7 +33,7 @@ def getSymptomList(symptoms):
     return retVal
     
 def logs(request): 
-    symptoms = Symptom.objects.order_by('-time')
+    symptoms = Symptom.objects.all()
     symptomList = getSymptomList(symptoms)
     
     return render(request, 'space/logs.html', {'symptoms' : symptoms, 'symptomList' : symptomList })
