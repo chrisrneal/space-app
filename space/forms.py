@@ -6,4 +6,4 @@ class SymptomForm(forms.ModelForm):
 
     class Meta:
         model = Symptom
-        fields = ('symptomName', 'intensity', 'locLat', 'locLong',)
+        fields = ('symptomName', 'intensity', 'streetaddress', 'city', 'province', 'postal', 'country',)
