@@ -21,3 +21,6 @@ def report(request):
     else:
         form = SymptomForm()
     return render(request, 'space/report.html', {'form' : form })
+    
+def logs(request):
+    return render(request, 'space/logs.html', {})
