@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 
 from .forms import SymptomForm
+from .models import Symptom
 
 
 # Create your views here.
@@ -22,5 +23,6 @@ def report(request):
         form = SymptomForm()
     return render(request, 'space/report.html', {'form' : form })
     
-def logs(request):
-    return render(request, 'space/logs.html', {})
+def logs(request): 
+    symptoms = Symptom.objects.order_by('-time')
+    return render(request, 'space/logs.html', {'symptoms' : symptoms})
