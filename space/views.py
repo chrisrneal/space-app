@@ -17,6 +17,7 @@ def report(request):
         form = SymptomForm(request.POST)
         if form.is_valid():
             symptom = form.save(commit=False)
+            symptom.setLongAndLat()
             symptom.save()
             return redirect('homepage')
     else:
