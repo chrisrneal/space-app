@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 
 from .forms import SymptomForm
 from .models import Symptom
-from .data import DataExtract
 
 
 # Create your views here.
