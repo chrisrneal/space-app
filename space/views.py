@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 
 from .forms import SymptomForm
 from .models import Symptom
+from .data import DataExtract
 
 
 # Create your views here.
@@ -24,6 +25,15 @@ def report(request):
         form = SymptomForm()
     return render(request, 'space/report.html', {'form' : form })
     
+def getSymptomList(symptoms):
+    retVal = []
+    for n in symptoms:
+        if n.symptomName not in retVal:
+            retVal.append(n.symptomName)
+    return retVal
+    
 def logs(request): 
     symptoms = Symptom.objects.order_by('-time')
-    return render(request, 'space/logs.html', {'symptoms' : symptoms})
+    symptomList = getSymptomList(symptoms)
+    
+    return render(request, 'space/logs.html', {'symptoms' : symptoms, 'symptomList' : symptomList })

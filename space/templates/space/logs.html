@@ -1,7 +1,7 @@
 {% extends 'space/base.html' %}
 {% load staticfiles %}
 {% block content %}
-    <h1>Report Log</h1>
+    <h1>Reports</h1>
     <table class="table table-hover">
         <tr>
             <th>Symptom Name</th>
@@ -17,6 +17,16 @@
                 <td>{{ x.locLong }}</td>
                 <td>{{ x.locLat }}</td>
                 <td>{{ x.time }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <table class="table table-hover">
+        <tr>
+            <th>Symptom Name</th>
+        </tr>
+        {% for x in symptomList %}
+            <tr>
+                <td>{{ x }}</td>
             </tr>
         {% endfor %}
     </table>

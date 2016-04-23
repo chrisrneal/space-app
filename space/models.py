@@ -29,7 +29,6 @@ class Symptom(models.Model):
             self.locLat = latlng[0]
             self.locLong = latlng[1]
         
-        
     def geocode(self, location):
         output = "json"
         request = "https://maps.googleapis.com/maps/api/geocode/%s?address=%s&key=%s" % (output, location, googAPIkey)
