@@ -10,6 +10,12 @@ class Symptom(models.Model):
     time = models.DateTimeField(default=timezone.now)
     locLat = models.FloatField()
     locLong = models.FloatField()
+    streetaddress = models.CharField(max_length=200, blank=True)
+    city = models.CharField(max_length=200, blank=True)
+    province = models.CharField(max_length=200, blank=True)
+    postal = models.CharField(max_length=200, blank=True)
+    country = models.CharField(max_length=200, blank=True)
+
     
     def __str__(self):
         return self.symptomName
