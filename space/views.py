@@ -7,7 +7,9 @@ from .models import Symptom
 # Create your views here.
 
 def homepage(request):
-    return render(request, 'space/homepage.html', {})
+    
+    pins = Symptom.objects.all()
+    return render(request, 'space/homepage.html', { 'pins' : pins })
     
 def about(request):
     return render(request, 'space/about.html', {})
