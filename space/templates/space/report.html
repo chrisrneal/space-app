@@ -2,5 +2,8 @@
 {% load staticfiles %}
 {% block content %}
     <h1>Report A Symptom</h1>
-    <p>form will go here.</p>
+    <form method="POST" class="symptom-form">{% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="save btn btn-default">Save</button>
+    </form>
 {% endblock %}
