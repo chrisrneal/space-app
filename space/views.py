@@ -15,7 +15,9 @@ def getSymptomList(symptoms):
 
 def homepage(request):
     pins = Symptom.objects.all()
-    return render(request, 'space/homepage.html', { 'pins' : pins })
+    
+    symptomList = getSymptomList(pins)
+    return render(request, 'space/homepage.html', { 'pins' : pins, 'symptomList' : symptomList})
     
 def about(request):
     return render(request, 'space/about.html', {})

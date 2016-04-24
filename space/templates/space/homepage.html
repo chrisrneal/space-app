@@ -16,27 +16,47 @@
             zoom: 8
             });
             {% for pin in pins %}
+                //addPin({{pin.symptom}}, {{pin.locLat}}, {{pin.locLong}})
+                
                 var marker = new google.maps.Marker({
                     position: {lat: {{ pin.locLat }}, lng: {{ pin.locLong }} },
                     map: map,
-                    title: 'Hello World!'
+                    title: "{{ pin.symptomName }}"
                 });
+                jsPins.push(marker)
             {% endfor %}
         }
 
-        function addPin(symptom, lng, lat) {
-            var pinLatLng = { 'lng': lng, 'lat': lat };
-            var pin = new google.maps.Marker({
-                position: pinLatLng,
-                map: map,
-                title: symptom
+        /*function addPin(symptom, aLat, aLng) {
+            var marker = new google.maps.Marker({
+                    position: {lat: aLat, lng: aLng },
+                    map: map,
+                    title: symptom
             });
-            jsPins.push(pin)
+            jsPins.push(marker)
+        }*/
+        
+        function filterPins(aUniqueSymptom){
+            for (i = 0; i < jsPins.length; i++) {
+                aPin = jsPins[i];
+                // If is same category or category not picked
+                console.log(aPin.title);
+                if (aPin.title.localeCompare(aUniqueSymptom) == 0 || aUniqueSymptom == "") {
+                    aPin.setVisible(true);
+                } else {
+                    aPin.setVisible(false);
+                }
+            }
         }
-        
-        
-        
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
          async defer></script>
+    <select id="symptom" onchange="filterPins(this.value);">-->
+        <option value="">Please select symptom to filter</option>
+            {% for symptom in symptomList %}
+            <option value="{{symptom}}">{{symptom}}</option>
+            {% endfor %}
+    </select>
+         
+    
 {% endblock %}
