@@ -47,7 +47,7 @@
                 var marker = new google.maps.Marker({
                     position: {lat: {{ pin.locLat }}, lng: {{ pin.locLong }} },
                     map: gmap,
-                    title: "{{ pin.symptomName }}"
+                    title: "{{ pin.symptom_name }}"
                 });
                 jsPins.push(marker)
             {% endfor %}

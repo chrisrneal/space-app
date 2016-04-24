@@ -9,12 +9,12 @@ import json
 googAPIkey = 'AIzaSyCG8ODmR1HGc5yglzEeBix2EqzrlbCg7F8'
 
 class Symptom(models.Model):
-    symptomName = models.CharField(max_length=200)
+    symptom_name = models.CharField(max_length=200)
     intensity = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(10.0)])
     time = models.DateTimeField(default=timezone.now)
     locLat = models.FloatField(blank=True)
     locLong = models.FloatField(blank=True)
-    streetaddress = models.CharField(max_length=200, blank=True)
+    street_address = models.CharField(max_length=200, blank=True)
     city = models.CharField(max_length=200, blank=True)
     province = models.CharField(max_length=200, blank=True)
     postal = models.CharField(max_length=200, blank=True)
@@ -40,5 +40,5 @@ class Symptom(models.Model):
             return ','
         
     def __str__(self):
-        return self.symptomName
+        return self.symptom_name
 

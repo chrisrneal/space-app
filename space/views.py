@@ -11,8 +11,8 @@ googAPIkey = 'AIzaSyCG8ODmR1HGc5yglzEeBix2EqzrlbCg7F8'
 def getSymptomList(symptoms):
     retVal = []
     for n in symptoms:
-        if n.symptomName not in retVal:
-            retVal.append(n.symptomName)
+        if n.symptom_name not in retVal:
+            retVal.append(n.symptom_name)
     return retVal
 
 def homepage(request):
