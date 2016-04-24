@@ -2,31 +2,18 @@
 {% load staticfiles %}
 {% block content %}
     <h1>Map Global Symptoms</h1>
-    <form id="locationForm" onsubmit="return false">
-        <div class="form-group">
-            <label for="City">City</label>
-            <input type="text" class="form-control" id="city">
-        </div>
-        <div class="form-group">
-            <label for="State">State</label>
-            <input type="text" class="form-control" id="state">
-        </div>
-        <input type="submit" value="Submit" />
-    </form>
     
+    <input id="pac-input" class="controls" type="text" placeholder="Search Box">
     <div id="gmap"></div>
     <script>
-        
-        $('#locationForm').submit(function() {
-            updateCoords();
-            return false
-        });
         
         var jsPins = [];
         var gmap = null;
         var today = "1999-09-09";
         var overlayDisplayDate = null;
         var pinDisplayDate = null;
+        var input = document.getElementById('pac-input');
+        var searchBox
         
         function initalizeTodaysDate(){
             unixToday = new Date();
@@ -66,8 +53,44 @@
                 jsPins.push(marker)
             {% endfor %}
             //addKMLOverlay('AIRS_CO_Total_Column_Day', '2016-04-22')
-            addTileOverlay()
+                // Create the search box and link it to the UI element.
+            searchBox = new google.maps.places.SearchBox(input);
+            gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+                 // Bias the SearchBox results towards current map's viewport.
+            gmap.addListener('bounds_changed', function() {
+                    searchBox.setBounds(gmap.getBounds());
+                });
+                addTileOverlay()
+                searchBox.addListener('places_changed', function() {
+                var places = searchBox.getPlaces();
+
+                if (places.length == 0) {
+                 return;
+                }
+
+                // For each place, get the icon, name and location.
+                var bounds = new google.maps.LatLngBounds();
+                places.forEach(function(place) {
+                    var icon = {
+                    url: place.icon,
+                    size: new google.maps.Size(71, 71),
+                    origin: new google.maps.Point(0, 0),
+                    anchor: new google.maps.Point(17, 34),
+                    scaledSize: new google.maps.Size(25, 25)
+                };
+
+                if (place.geometry.viewport) {
+                // Only geocodes have viewport.
+                    bounds.union(place.geometry.viewport);
+                } else {
+                    bounds.extend(place.geometry.location);
+                }
+                });
+                gmap.fitBounds(bounds);
+            });
         }
+        
+        
         
         var currentOverlayType = 'none';
         
@@ -240,9 +263,10 @@
             address = city + "," + state
             console.log(address)
             var geocoder = new google.maps.Geocoder({ 'address' : address }, function(results, status) {
+                console.log(status, results)
                 if (status === google.maps.GeocoderStatus.OK) {
                     console.log('I found a location')
-                    map.setCenter(results[0].geometry.location);
+                    gmap.setCenter(results[0].geometry.location);
                 } else {
                     alert('Geocode was not successful for the following reason: ' + status);
                 }
@@ -252,7 +276,7 @@
         
     </script>
     <script type="text/javascript"
-                src="https://maps.googleapis.com/maps/api/js?callback=initMap"></script>
+                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCG8ODmR1HGc5yglzEeBix2EqzrlbCg7F8&libraries=places&callback=initMap"></script>
     <select id="symptom" onchange="filterPinsBySymptom(this.value);">
         <option value="">Please select symptom to filter</option>
             {% for symptom in symptomList %}
