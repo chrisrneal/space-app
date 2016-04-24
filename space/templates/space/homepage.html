@@ -39,6 +39,7 @@
                 mm='0'+mm
             }
             today = yyyy+'-'+mm+'-'+dd;
+            today = "2016-04-23";
         }
         
         initalizeTodaysDate();
@@ -264,8 +265,8 @@
     <form name="NASAOverlayImageTypeRadio">
         NASA Data Map Overlay Type<br>
         <input type="radio" name="overlay" value="none" onchange="addTileOverlay(this.value);" checked> None<br>
-        <input type="radio" name="overlay" value="AIRS_CO_Total_Column_Day" onchange="addTileOverlay(this.value);"> AIRS Total Daytime Carbon Monoxide<br>
-        <input type="radio" name="overlay" value="MODIS_Terra_Aerosol" onchange="addTileOverlay(this.value);"> MODIS_Terra_Aerosol<br>
+        <input type="radio" name="overlay" value="AIRS_CO_Total_Column_Day" onchange="addTileOverlay(this.value);"> AIRS - Measured Total Daytime Carbon Monoxide<br>
+        <input type="radio" name="overlay" value="MODIS_Terra_Aerosol" onchange="addTileOverlay(this.value);"> MODIS - Measured Aerosol<br>
     </form> 
     
     <!-- this should be done in JQuery (sadface)
