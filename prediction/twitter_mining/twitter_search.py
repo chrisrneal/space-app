@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 the library: https://github.com/sixohsix/twitter
 example: https://github.com/ideoforms/python-twitter-examples/blob/master/twitter-search-geo.py
@@ -7,6 +5,8 @@ example: https://github.com/ideoforms/python-twitter-examples/blob/master/twitte
 
 import os
 import datetime
+import json
+
 
 from twitter import Twitter, OAuth
 
@@ -22,7 +22,7 @@ class TwitterSearch():
 
 
 	def __init__(self):
-		self.twitter = Twitter(auth=self._auth())
+		self.twitter = Twitter(auth=self._auth(), retry=True)
 
 
 	def _auth(self):
@@ -34,16 +34,26 @@ class TwitterSearch():
 
 	def query(self, lat=51.474144, lng=0.035401, search_word='', radius=100, num_results=10):
 		tweets = []
+		tweets_raw = {'statuses':{}}
 		last_id = None
 		result_count = 0
 		while result_count <  num_results:
 			query = self.twitter.search.tweets(q = search_word, geocode = "%f,%f,%dkm" % (lat, lng, radius), count = num_results, max_id = last_id)
-			
-			print "found results #", len(query["statuses"])
+			results_found = len(query["statuses"])
+			print "found results #", results_found
+			if results_found == 0:
+				break
 			for result in query["statuses"]:
 				user = result["user"]["screen_name"]
 				text = result["text"]
 				text = text.encode('ascii', 'replace')
+
+				coordinates = result["coordinates"]
+				created_at = result["created_at"].encode('ascii', 'replace')
+				created_at = created_at.split()
+				month = created_at[1]
+				day = created_at[2]
+				location = result["user"]["location"].encode('ascii', 'replace')
 
 				if result["geo"]:
 					latitude = result["geo"]["coordinates"][0]
@@ -52,12 +62,12 @@ class TwitterSearch():
 					latitude = lat
 					longitude = lng			
 
-				row = (user, text, latitude, longitude)
+				row = (user, text, latitude, longitude, coordinates, location, month, day)
 				tweets.append(row)
 				result_count += 1	
 				print result_count
 			last_id = result["id"]
-		return tweets
+		return tweets, tweets_raw
 
 
 if __name__ == "__main__":
@@ -67,7 +77,7 @@ if __name__ == "__main__":
 	longitude = -74.03
 	search_word = 'flu'
 	num_results = 2000
-	radius = 5
+	radius = 50
 
 	now = datetime.datetime.now().isoformat().replace(':','-').replace('.','-').replace(':','')
 	f_name = "time-{}-tweets-lat-{}-lng-{}-query-{}-radius-{}-num_results-{}".format(now, latitude, longitude, search_word, radius, num_results)
@@ -81,3 +91,4 @@ if __name__ == "__main__":
 		f.write('\n')
 
 	print "saved in ", f_name
+
