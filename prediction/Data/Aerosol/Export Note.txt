@@ -1,0 +1,5 @@
+table(j,1) = Longitude{1,1}(j);
+        table(j,2) = Latitude{1,1}(j);
+        table(j,3) = Time{1,1}(j);
+        table(j,4) = Aerosol_Optical_Depth{1,1}(j);
+        table(j,5) = AOD_N10km_In_Grid{1,1}(j);
