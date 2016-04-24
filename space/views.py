@@ -6,8 +6,14 @@ from .models import Symptom
 
 # Create your views here.
 
+def getSymptomList(symptoms):
+    retVal = []
+    for n in symptoms:
+        if n.symptomName not in retVal:
+            retVal.append(n.symptomName)
+    return retVal
+
 def homepage(request):
-    
     pins = Symptom.objects.all()
     return render(request, 'space/homepage.html', { 'pins' : pins })
     
@@ -25,13 +31,6 @@ def report(request):
     else:
         form = SymptomForm()
     return render(request, 'space/report.html', {'form' : form })
-    
-def getSymptomList(symptoms):
-    retVal = []
-    for n in symptoms:
-        if n.symptomName not in retVal:
-            retVal.append(n.symptomName)
-    return retVal
     
 def logs(request): 
     symptoms = Symptom.objects.all()
