@@ -1,8 +1,12 @@
 {% extends 'space/base.html' %}
 {% load staticfiles %}
 {% block content %}
-    <h1>Hello World</h1>
-    
+    <h1>Map Global Symptoms</h1>
+    <form method="POST" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Submit" />
+    </form>
     <div id="map"></div>
     <script>
         
@@ -12,7 +16,7 @@
         function initMap() {
         var mapDiv = document.getElementById('map');
         map = new google.maps.Map(mapDiv, {
-            center: {lat: 43.659705, lng: -79.4955992},
+            center: { lat: {{ lat }}, lng: {{ lng }} },
             zoom: 8
             });
             {% for pin in pins %}
@@ -25,8 +29,21 @@
                 });
                 jsPins.push(marker)
             {% endfor %}
+            //addKMLOverlay('AIRS_CO_Total_Column_Day', '2016-04-22')
         }
-
+        
+        function addKMLOverlay(dataType){
+            //console.log('http://map1.vis.earthdata.nasa.gov/twms-geo/kmlgen.cgi?layers=' + dataType + '&time=2016-04-22')
+            if (dataType != 'none'){
+                var ctaLayer = new google.maps.KmlLayer({
+                    url: 'http://map1.vis.earthdata.nasa.gov/twms-geo/kmlgen.cgi?layers=' + dataType + '&time=2016-04-22',
+                    map: map
+                });
+            }
+        }
+        
+        
+        //WHY DOESN'T THIS WORK!!!??
         /*function addPin(symptom, aLat, aLng) {
             var marker = new google.maps.Marker({
                     position: {lat: aLat, lng: aLng },
@@ -51,12 +68,26 @@
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
          async defer></script>
-    <select id="symptom" onchange="filterPins(this.value);">-->
+    <select id="symptom" onchange="filterPins(this.value);">
         <option value="">Please select symptom to filter</option>
             {% for symptom in symptomList %}
             <option value="{{symptom}}">{{symptom}}</option>
             {% endfor %}
     </select>
+    
+    <!-- full list of available ones at: 
+    https://wiki.earthdata.nasa.gov/display/GIBS/GIBS+Available+Imagery+Products#expand-CarbonMonoxide4Products -->
+    <form name="NASAOverlayImageTypeRadio">
+        NASA Data Map Overlay Type<br>
+        <input type="radio" name="overlay" value="none" onchange="addKMLOverlay(this.value);" checked> None<br>
+        <input type="radio" name="overlay" value="AIRS_CO_Total_Column_Day" onchange="addKMLOverlay(this.value);"> AIRS Total Daytime Carbon Monoxide<br>
+        <input type="radio" name="overlay" value="AIRS_Dust_Score" onchange="addKMLOverlay(this.value);"> AIRS Dust Score<br>
+    </form> 
+    
+    <form name="NASAOverlayImageDate">
+        NASA Data Map Overlay Date<br>
+        <input type="date" name="overlayDate">
+    </form>
          
     
 {% endblock %}
