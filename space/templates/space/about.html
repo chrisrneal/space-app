@@ -1,8 +1,29 @@
 {% extends 'space/base.html' %}
+{% load staticfiles %}
 
 {% block content %}
-    <h1>About Us Page</h1><br>
-    <p>
-        We are a team of people currently taking on the challenge of building a solution to aircheck.
+    <h1></h1><br>
+    <center><p>
+        
+        <img alt="Logo in images" src="{% static 'assets/images/logoandtext2.png' %}">
+        
     </p>
+    <p>
+        Ukko is a team of innovative individuals who are combining big data and machine learning to provide useful health insights to users around the world.
+        <br><br>
+        They created Ukko for the <a href = "https://2016.spaceappschallenge.org/">2016 SpaceApps Challenge</a>
+    </p>
+    <p>
+        Ukko's team includes health data innovators from across Toronto and Vancouver: <br>
+        Jordan Lui <br>
+        Lee Sutton <br>
+        Parsian Asgari<br>
+        Tim Nosov<br>
+        Tobi Nakamura<br>
+        Chris Neal<br>
+        Paul Nogas<br>
+        Samantha Yu<br>
+        <br>
+    </p>
+    </center>
 {% endblock %}

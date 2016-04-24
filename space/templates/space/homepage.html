@@ -3,7 +3,6 @@
 {% block content %}
     <h1>Map Global Symptoms</h1>
     
-    <input id="pac-input" class="controls" type="text" placeholder="Search Box">
     <div id="gmap"></div>
     <script>
         
@@ -35,11 +34,11 @@
             initalizeTodaysDate();
             overlayDisplayDate = today;
             
-        var mapDiv = document.getElementById('gmap');
-        gmap = new google.maps.Map(mapDiv, {
-            center: {lat: 43.659705, lng: -79.4955992},
-            zoom: 6,
-            maxZoom: 21
+            var mapDiv = document.getElementById('gmap');
+            gmap = new google.maps.Map(mapDiv, {
+                center: {lat: 43.659705, lng: -79.4955992},
+                zoom: 6,
+                maxZoom: 21
             });
             
             {% for pin in pins %}
@@ -52,16 +51,19 @@
                 });
                 jsPins.push(marker)
             {% endfor %}
+            addTileOverlay()
             //addKMLOverlay('AIRS_CO_Total_Column_Day', '2016-04-22')
-                // Create the search box and link it to the UI element.
-            searchBox = new google.maps.places.SearchBox(input);
+            //Create the search box and link it to the UI element.
+            //Not sure why the search logic breaks the overlay...
+
+            /*searchBox = new google.maps.places.SearchBox(input);
             gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-                 // Bias the SearchBox results towards current map's viewport.
+            // Bias the SearchBox results towards current map's viewport.
             gmap.addListener('bounds_changed', function() {
                     searchBox.setBounds(gmap.getBounds());
-                });
-                addTileOverlay()
-                searchBox.addListener('places_changed', function() {
+            });
+                
+            searchBox.addListener('places_changed', function() {
                 var places = searchBox.getPlaces();
 
                 if (places.length == 0) {
@@ -85,9 +87,9 @@
                 } else {
                     bounds.extend(place.geometry.location);
                 }
-                });
                 gmap.fitBounds(bounds);
-            });
+            });*/
+            
         }
         
         
@@ -97,31 +99,32 @@
         function addTileOverlay(type) {
             currentOverlayType = type;
             
-        gmap.overlayMapTypes.clear();
+            gmap.overlayMapTypes.clear();
             console.log("display overlay for: " + overlayDisplayDate);
-        var getTileUrl = function(tile, zoom) {
+            var getTileUrl = function(tile, zoom) {
+            console.log(tile)
             return "https://map1.vis.earthdata.nasa.gov/wmts-webmerc/" +
                type + "/default/" + overlayDisplayDate + "/" +
                "GoogleMapsCompatible_Level6/" +
                 zoom + "/" + tile.y + "/" +
                 tile.x + ".png";
-        };
+            };
         
-        var layerOptions = {
-            alt: "ALT",
-            getTileUrl: getTileUrl,
-            maxZoom: 6,
-            minZoom: 1,
-            name: type,
-            tileSize: new google.maps.Size(256, 256),
-            opacity: 0.5
-        };
+            var layerOptions = {
+                alt: "ALT",
+                getTileUrl: getTileUrl,
+                maxZoom: 6,
+                minZoom: 1,
+                name: type,
+                tileSize: new google.maps.Size(256, 256),
+                opacity: 0.5
+            };
         
-        if (type != 'none') {
-            var imageMapType = new google.maps.ImageMapType(layerOptions);
-            gmap.overlayMapTypes.insertAt(0, imageMapType);
+            if (type != 'none') {
+                var imageMapType = new google.maps.ImageMapType(layerOptions);
+                gmap.overlayMapTypes.insertAt(0, imageMapType);
+            }
         }
-    }
 
         /*
         var view = new ol.View({
@@ -256,23 +259,7 @@
             }
         }
         
-        function updateCoords(){
-            city = document.getElementById("city").value
-            state = document.getElementById("state").value
-            console.log(city, state)
-            address = city + "," + state
-            console.log(address)
-            var geocoder = new google.maps.Geocoder({ 'address' : address }, function(results, status) {
-                console.log(status, results)
-                if (status === google.maps.GeocoderStatus.OK) {
-                    console.log('I found a location')
-                    gmap.setCenter(results[0].geometry.location);
-                } else {
-                    alert('Geocode was not successful for the following reason: ' + status);
-                }
-            });
-            return false
-        }
+
         
     </script>
     <script type="text/javascript"
