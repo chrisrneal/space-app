@@ -2,13 +2,24 @@
 {% load staticfiles %}
 {% block content %}
     <h1>Map Global Symptoms</h1>
-    <form method="POST" method="post">
-        {% csrf_token %}
-        {{ form }}
+    <form id="locationForm" onsubmit="return false">
+        <div class="form-group">
+            <label for="City">City</label>
+            <input type="text" class="form-control" id="city">
+        </div>
+        <div class="form-group">
+            <label for="State">State</label>
+            <input type="text" class="form-control" id="state">
+        </div>
         <input type="submit" value="Submit" />
     </form>
     <div id="map"></div>
     <script>
+        
+        $('#locationForm').submit(function() {
+            updateCoords();
+            return false
+        });
         
         var jsPins = [];
         var map;
@@ -16,7 +27,7 @@
         function initMap() {
         var mapDiv = document.getElementById('map');
         map = new google.maps.Map(mapDiv, {
-            center: { lat: {{ lat }}, lng: {{ lng }} },
+            center: {lat: 43.659705, lng: -79.4955992},
             zoom: 8
             });
             {% for pin in pins %}
@@ -32,15 +43,57 @@
             //addKMLOverlay('AIRS_CO_Total_Column_Day', '2016-04-22')
         }
         
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; //January is 0!
+        var yyyy = today.getFullYear();
+        if(dd<10){
+            dd='0'+dd
+        } 
+        if(mm<10){
+            mm='0'+mm
+        }
+        today = yyyy+'-'+mm+'-'+dd;
+        //document.getElementById("overlayDate").setAttribute("max", today);
+        var overlayDate = today;
+        var overlayType = 'none';
+        
+        var overlayLayer
+        
         function addKMLOverlay(dataType){
-            //console.log('http://map1.vis.earthdata.nasa.gov/twms-geo/kmlgen.cgi?layers=' + dataType + '&time=2016-04-22')
+            console.log('dataType = ' + dataType);
+            overlayLayer = new google.maps.KmlLayer(null); //should clear it but it doesn't (sadface)
             if (dataType != 'none'){
-                var ctaLayer = new google.maps.KmlLayer({
-                    url: 'http://map1.vis.earthdata.nasa.gov/twms-geo/kmlgen.cgi?layers=' + dataType + '&time=2016-04-22',
-                    map: map
+                overlayLayer = new google.maps.KmlLayer({
+                    url: 'http://map1.vis.earthdata.nasa.gov/twms-geo/kmlgen.cgi?layers=' + dataType + '&time=2016-04-23',// + overlayDate,
+                    map: map,
+                    preserveViewport: true
+                    
                 });
+                overlayType = dataType;
             }
         }
+        
+        //http://stackoverflow.com/questions/16886874/setting-a-kml-layer-transparency
+        //should be a way to change opacity
+        //$("#map").find("img[src*='kml']").css("opacity","0.5"); doesn't work (sadface)
+        
+        function filterPinsByDate(filterDate) {
+            for (i = 0; i < jsPins.length; i++) {
+                aPin = jsPins[i];
+                if (aPin.time.getDate == filterDate || filterDate == undefined) {
+                    aPin.setVisible(true);
+                } else {
+                    aPin.setVisible(false);
+                }
+            }
+        }
+        
+        function filterPinsAndUpdateKML(chosenDate) {
+            //filterPinsByDate(chosenDate);
+            overlayDate = chosenDate;
+            addKMLOverlay(overlayType);
+        } 
         
         
         //WHY DOESN'T THIS WORK!!!??
@@ -53,10 +106,9 @@
             jsPins.push(marker)
         }*/
         
-        function filterPins(aUniqueSymptom){
+        function filterPinsBySymptom(aUniqueSymptom){
             for (i = 0; i < jsPins.length; i++) {
                 aPin = jsPins[i];
-                // If is same category or category not picked
                 console.log(aPin.title);
                 if (aPin.title.localeCompare(aUniqueSymptom) == 0 || aUniqueSymptom == "") {
                     aPin.setVisible(true);
@@ -65,10 +117,28 @@
                 }
             }
         }
+        
+        function updateCoords(){
+            city = document.getElementById("city").value
+            state = document.getElementById("state").value
+            console.log(city, state)
+            address = city + "," + state
+            console.log(address)
+            var geocoder = new google.maps.Geocoder({ 'address' : address }, function(results, status) {
+                if (status === google.maps.GeocoderStatus.OK) {
+                    console.log('I found a location')
+                    map.setCenter(results[0].geometry.location);
+                } else {
+                    alert('Geocode was not successful for the following reason: ' + status);
+                }
+            });
+            return false
+        }
+        
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
          async defer></script>
-    <select id="symptom" onchange="filterPins(this.value);">
+    <select id="symptom" onchange="filterPinsBySymptom(this.value);">
         <option value="">Please select symptom to filter</option>
             {% for symptom in symptomList %}
             <option value="{{symptom}}">{{symptom}}</option>
@@ -84,10 +154,13 @@
         <input type="radio" name="overlay" value="AIRS_Dust_Score" onchange="addKMLOverlay(this.value);"> AIRS Dust Score<br>
     </form> 
     
+    <!-- this should be done in JQuery (sadface)
+    var today = moment().format('YYYY-MM-DD');
+    $('#overlayDate').val(today); -->
+    
     <form name="NASAOverlayImageDate">
         NASA Data Map Overlay Date<br>
-        <input type="date" name="overlayDate">
+        <input type="date" name="overlayDate" max="2016-04-24" min="2013-11-24" onchange="filterPinsAndUpdateKML(this.value);">
     </form>
-         
     
 {% endblock %}
