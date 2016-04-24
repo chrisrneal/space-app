@@ -13,7 +13,8 @@
         </div>
         <input type="submit" value="Submit" />
     </form>
-    <div id="map"></div>
+    
+    <div id="gmap"></div>
     <script>
         
         $('#locationForm').submit(function() {
@@ -22,61 +23,174 @@
         });
         
         var jsPins = [];
-        var map;
+        var gmap = null;
+        var today = "1999-09-09";
+        var overlayDisplayDate = null;
+        var pinDisplayDate = null;
+        
+        function initalizeTodaysDate(){
+            unixToday = new Date();
+            var dd = unixToday.getDate();
+            var mm = unixToday.getMonth()+1; //January is 0!
+            var yyyy = unixToday.getFullYear();
+            if(dd<10){
+                dd='0'+dd
+            } if(mm<10){
+                mm='0'+mm
+            }
+            today = yyyy+'-'+mm+'-'+dd;
+        }
+        
+        initalizeTodaysDate();
         
         function initMap() {
-        var mapDiv = document.getElementById('map');
-        map = new google.maps.Map(mapDiv, {
+            initalizeTodaysDate();
+            overlayDisplayDate = today;
+            
+        var mapDiv = document.getElementById('gmap');
+        gmap = new google.maps.Map(mapDiv, {
             center: {lat: 43.659705, lng: -79.4955992},
-            zoom: 8
+            zoom: 6,
+            maxZoom: 21
             });
+            
             {% for pin in pins %}
                 //addPin({{pin.symptom}}, {{pin.locLat}}, {{pin.locLong}})
                 
                 var marker = new google.maps.Marker({
                     position: {lat: {{ pin.locLat }}, lng: {{ pin.locLong }} },
-                    map: map,
+                    map: gmap,
                     title: "{{ pin.symptomName }}"
                 });
                 jsPins.push(marker)
             {% endfor %}
             //addKMLOverlay('AIRS_CO_Total_Column_Day', '2016-04-22')
+            addTileOverlay()
         }
         
-        var today = new Date();
-        var dd = today.getDate();
-        var mm = today.getMonth()+1; //January is 0!
-        var yyyy = today.getFullYear();
-        if(dd<10){
-            dd='0'+dd
-        } 
-        if(mm<10){
-            mm='0'+mm
+        var currentOverlayType = 'none';
+        
+        function addTileOverlay(type) {
+            currentOverlayType = type;
+            
+        gmap.overlayMapTypes.clear();
+            console.log("display overlay for: " + overlayDisplayDate);
+        var getTileUrl = function(tile, zoom) {
+            return "https://map1.vis.earthdata.nasa.gov/wmts-webmerc/" +
+               type + "/default/" + overlayDisplayDate + "/" +
+               "GoogleMapsCompatible_Level6/" +
+                zoom + "/" + tile.y + "/" +
+                tile.x + ".png";
+        };
+        
+        var layerOptions = {
+            alt: "ALT",
+            getTileUrl: getTileUrl,
+            maxZoom: 6,
+            minZoom: 1,
+            name: type,
+            tileSize: new google.maps.Size(256, 256),
+            opacity: 0.5
+        };
+        
+        if (type != 'none') {
+            var imageMapType = new google.maps.ImageMapType(layerOptions);
+            gmap.overlayMapTypes.insertAt(0, imageMapType);
         }
-        today = yyyy+'-'+mm+'-'+dd;
-        //document.getElementById("overlayDate").setAttribute("max", today);
+    }
+
+        /*
+        var view = new ol.View({
+            maxZoom: 21
+        });
+        
+        view.on('change:center', function() {
+            var center = ol.proj.transform(view.getCenter(), 'EPSG:3857', 'EPSG:4326');
+            gmap.setCenter(new google.maps.LatLng(center[1], center[0]));
+        });
+        
+        view.on('change:resolution', function() {
+            gmap.setZoom(view.getZoom());
+        });
+        
+        var vector = new ol.layer.Vector({
+            source: new ol.source.GeoJSON({
+                url: 'data/geojson/countries.geojson',
+                projection: 'EPSG:3857'
+            }),
+            style: new ol.style.Style({
+                fill: new ol.style.Fill({
+                    color: 'rgba(255, 255, 255, 0.6)'
+                }),
+                stroke: new ol.style.Stroke({
+                    color: '#319FD3',
+                    width: 1
+                })
+            })
+        });
+
+        var olMapDiv = document.getElementById('olmap');
+        var map = new ol.Map({
+            layers: [vector],
+            interactions: ol.interaction.defaults({
+                altShiftDragRotate: false,
+                dragPan: false,
+                rotate: false
+            }).extend([new ol.interaction.DragPan({kinetic: null})]),
+            target: olMapDiv,
+            view: view
+        });
+        
+        view.setCenter([0, 0]);
+        view.setZoom(1);
+        
+        olMapDiv.parentNode.removeChild(olMapDiv);
+        gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(olMapDiv);*/
+        
+        
+        /*document.getElementById("overlayDate").setAttribute("max", today);
         var overlayDate = today;
         var overlayType = 'none';
         
-        var overlayLayer
+        var overlayLayer*/
         
-        function addKMLOverlay(dataType){
+        /*var geoXml = null;
+        
+        geoXml = new geoXML3.parser({
+                    map: map,
+                    singleInfoWindow: true,
+                    zoom: false,
+                });
+        geoXml.parse('https://map1.vis.earthdata.nasa.gov/twms-geo/kmlgen.cgi?layers=AIRS_CO_Total_Column_Day&time=2016-04-23');*/
+        
+        /*function addKMLOverlay(dataType){
             console.log('dataType = ' + dataType);
             overlayLayer = new google.maps.KmlLayer(null); //should clear it but it doesn't (sadface)
             if (dataType != 'none'){
                 overlayLayer = new google.maps.KmlLayer({
                     url: 'http://map1.vis.earthdata.nasa.gov/twms-geo/kmlgen.cgi?layers=' + dataType + '&time=2016-04-23',// + overlayDate,
-                    map: map,
+                    map: gmap,
                     preserveViewport: true
                     
                 });
+            
+                
                 overlayType = dataType;
+                //$("#map").find("img[src*='kml']").css("opacity","0.5");
             }
-        }
+        }*/
         
         //http://stackoverflow.com/questions/16886874/setting-a-kml-layer-transparency
         //should be a way to change opacity
-        //$("#map").find("img[src*='kml']").css("opacity","0.5"); doesn't work (sadface)
+        //$("#map").find("img[src*='kml']").css("opacity","0.5");
+        
+        //from WorldView source code:
+        //.on("slide", function() {
+        //        models.layers.setOpacity(layer.id, parseFloat($(this).val()));
+        //    });
+        
+        //geoXml.hideDocument();
+        
         
         function filterPinsByDate(filterDate) {
             for (i = 0; i < jsPins.length; i++) {
@@ -89,10 +203,10 @@
             }
         }
         
-        function filterPinsAndUpdateKML(chosenDate) {
+        function filterPinsAndUpdateOverlay(chosenDate) {
             //filterPinsByDate(chosenDate);
-            overlayDate = chosenDate;
-            addKMLOverlay(overlayType);
+            overlayDisplayDate = chosenDate;
+            addTileOverlay(currentOverlayType);
         } 
         
         
@@ -136,8 +250,8 @@
         }
         
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
-         async defer></script>
+    <script type="text/javascript"
+                src="https://maps.googleapis.com/maps/api/js?callback=initMap"></script>
     <select id="symptom" onchange="filterPinsBySymptom(this.value);">
         <option value="">Please select symptom to filter</option>
             {% for symptom in symptomList %}
@@ -149,9 +263,9 @@
     https://wiki.earthdata.nasa.gov/display/GIBS/GIBS+Available+Imagery+Products#expand-CarbonMonoxide4Products -->
     <form name="NASAOverlayImageTypeRadio">
         NASA Data Map Overlay Type<br>
-        <input type="radio" name="overlay" value="none" onchange="addKMLOverlay(this.value);" checked> None<br>
-        <input type="radio" name="overlay" value="AIRS_CO_Total_Column_Day" onchange="addKMLOverlay(this.value);"> AIRS Total Daytime Carbon Monoxide<br>
-        <input type="radio" name="overlay" value="AIRS_Dust_Score" onchange="addKMLOverlay(this.value);"> AIRS Dust Score<br>
+        <input type="radio" name="overlay" value="none" onchange="addTileOverlay(this.value);" checked> None<br>
+        <input type="radio" name="overlay" value="AIRS_CO_Total_Column_Day" onchange="addTileOverlay(this.value);"> AIRS Total Daytime Carbon Monoxide<br>
+        <input type="radio" name="overlay" value="MODIS_Terra_Aerosol" onchange="addTileOverlay(this.value);"> MODIS_Terra_Aerosol<br>
     </form> 
     
     <!-- this should be done in JQuery (sadface)
@@ -160,7 +274,7 @@
     
     <form name="NASAOverlayImageDate">
         NASA Data Map Overlay Date<br>
-        <input type="date" name="overlayDate" max="2016-04-24" min="2013-11-24" onchange="filterPinsAndUpdateKML(this.value);">
+        <input type="date" name="overlayDate" max="2016-04-24" min="2013-11-24" onchange="filterPinsAndUpdateOverlay(this.value);">
     </form>
     
 {% endblock %}
